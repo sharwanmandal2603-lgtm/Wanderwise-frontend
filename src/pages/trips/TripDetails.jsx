@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import useApi from '@/hooks/useApi';
+import { Cloudinary } from '@cloudinary/url-gen/index';
 import { Loader2 } from 'lucide-react';
 import React from 'react'
 import { useParams } from 'react-router-dom';
@@ -18,6 +19,7 @@ const TripDetails = () => {
             cloudName: 'rxknqnwl'
         }
     });
+    const [image, setImage] = React.useState(null);
 
     const [dependency, setDependency] = React.useState(0);
 
@@ -67,6 +69,55 @@ const TripDetails = () => {
             console.log(error);
         }
 
+    }
+
+    const handleUpload = async (e) => {
+        const file = e.target.files[0];
+
+        if (!file) {
+            toast.error("No file selected.");
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "Trips_preset");
+        formData.append("cloud_name", "rxknqnwl");
+
+        const response = await fetch("https://api.cloudinary.com/v1_1/rxknqnwl/image/upload", {
+            method: "POST",
+            body: formData
+        })
+
+        const uploadedImage = await response.json();
+        console.log(uploadedImage);
+
+        if (uploadedImage.url) {
+            setImage(uploadedImage.url);
+        }
+    }
+
+    const onImageSubmit = async () => {
+        if (!image) {
+            toast.error("No image selected.");
+            return;
+        }
+
+        const files = [...data.files, image];
+
+        try {
+            const response = await api.patch(`/trips/${tripId}/`, { files });
+
+            if (response.status === 200) {
+                toast.success("Image uploaded successfully");
+                setImage(null);
+                setDependency(dependency + 1);
+            } else {
+                toast.error(response.data.message || "Failed to upload image");
+            }
+        } catch (error) {
+            toast.error(error.message || "Failed to upload image");
+            console.log(error);
+        }
     }
 
     return (
