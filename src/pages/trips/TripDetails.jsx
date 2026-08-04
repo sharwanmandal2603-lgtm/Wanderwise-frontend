@@ -13,6 +13,12 @@ import { toast } from 'sonner';
 
 const TripDetails = () => {
 
+    const cld =new Cloudinary({
+        cloud: {
+            cloudName: 'rxknqnwl'
+        }
+    });
+
     const [dependency, setDependency] = React.useState(0);
 
     const { tripId } = useParams();
@@ -92,6 +98,20 @@ const TripDetails = () => {
                 </Card>
 
                 <InviteForm tripId={tripId} />
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Upload</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Input type="file" onChange={handleUpload} />
+                    </CardContent>
+                    <CardFooter>
+                        <Button className={"w-full"} onClick={onImageSubmit}>Upload</Button>
+                    </CardFooter>
+                </Card>
+
+                    
             </div>
 
         </section>
